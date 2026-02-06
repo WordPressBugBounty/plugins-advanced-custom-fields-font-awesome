@@ -17,7 +17,7 @@ if ( ! class_exists( 'acf_field_font_awesome' ) ) :
 		public function __construct()
 		{
 			$this->version = 'v' . ACFFA_MAJOR_VERSION;
-			$this->name = 'font-awesome';	
+			$this->name = 'font-awesome';
 			$this->label = __( 'Font Awesome Icon', 'acf-font-awesome');
 			$this->category = 'content';
 
@@ -43,7 +43,7 @@ if ( ! class_exists( 'acf_field_font_awesome' ) ) :
 			add_filter( 'ACFFA_v5_upgrade_compat_selected_field_sets', [ $this, 'v5_upgrade_compat_selected_field_sets' ], 5, 1 );
 			add_filter( 'ACFFA_v5_upgrade_compat_format_value', [ $this, 'v5_upgrade_compat_format_value' ], 5, 2 );
 		}
-		
+
 		public function render_field_settings( $field )
 		{
 			if ( apply_filters( 'ACFFA_show_fontawesome_pro_blurbs', true ) ) {
@@ -59,24 +59,46 @@ if ( ! class_exists( 'acf_field_font_awesome' ) ) :
 			$icon_sets_args = [
 				'label'			=> __( 'Icon Sets', 'acf-font-awesome' ),
 				'instructions'	=> __( 'Specify which icon set(s) to load', 'acf-font-awesome' ),
-				'type'			=> 'checkbox',
+				'type'			=> 'select',
 				'name'			=> 'icon_sets',
+				'multiple'     => 1,
+				'ui'           => 1,
 			];
 
 			$icon_sets_args['choices'] = [
-				'solid'					=> __( 'Solid', 'acf-font-awesome' ),
-				'sharp_solid'			=> __( 'Solid (Sharp)', 'acf-font-awesome' ) . ' (' . '<a target="_blank" href="https://fontawesome.com/referral?a=f4be3e1256">' . __( 'FontAwesome Pro License Required', 'acf-font-awesome' ) . '</a>)',
-				'regular'				=> __( 'Regular', 'acf-font-awesome' ),
-				'sharp_regular'			=> __( 'Regular (Sharp)', 'acf-font-awesome' ) . ' (' . '<a target="_blank" href="https://fontawesome.com/referral?a=f4be3e1256">' . __( 'FontAwesome Pro License Required', 'acf-font-awesome' ) . '</a>)',
-				'light'					=> __( 'Light', 'acf-font-awesome' ) . ' (' . '<a target="_blank" href="https://fontawesome.com/referral?a=f4be3e1256">' . __( 'FontAwesome Pro License Required', 'acf-font-awesome' ) . '</a>)',
-				'sharp_light'			=> __( 'Light (Sharp)', 'acf-font-awesome' ) . ' (' . '<a target="_blank" href="https://fontawesome.com/referral?a=f4be3e1256">' . __( 'FontAwesome Pro License Required', 'acf-font-awesome' ) . '</a>)',
-				'thin'					=> __( 'Thin', 'acf-font-awesome' ) . ' (' . '<a target="_blank" href="https://fontawesome.com/referral?a=f4be3e1256">' . __( 'FontAwesome Pro License Required', 'acf-font-awesome' ) . '</a>)',
-				'sharp_thin'			=> __( 'Thin (Sharp)', 'acf-font-awesome' ) . ' (' . '<a target="_blank" href="https://fontawesome.com/referral?a=f4be3e1256">' . __( 'FontAwesome Pro License Required', 'acf-font-awesome' ) . '</a>)',
-				'sharp-duotone_solid'	=> __( 'Duotone (Sharp)', 'acf-font-awesome' ) . ' (' . '<a target="_blank" href="https://fontawesome.com/referral?a=f4be3e1256">' . __( 'FontAwesome Pro License Required', 'acf-font-awesome' ) . '</a>)',
-				'duotone_solid'			=> __( 'Duotone', 'acf-font-awesome' ) . ' (' . '<a target="_blank" href="https://fontawesome.com/referral?a=f4be3e1256">' . __( 'FontAwesome Pro License Required', 'acf-font-awesome' ) . '</a>)',
-				'fak'					=> __( 'Uploaded Icons', 'acf-font-awesome' ) . ' (' . '<a target="_blank" href="https://fontawesome.com/referral?a=f4be3e1256">' . __( 'FontAwesome Pro License Required', 'acf-font-awesome' ) . '</a>)',
-				'brands'				=> __( 'Brands', 'acf-font-awesome' ),
-				'custom'				=> __( 'Custom Icon Set', 'acf-font-awesome' )
+				'classic_solid'          => __('Classic (Solid)', 'acf-font-awesome'),
+				'classic_regular'        => __('Classic (Regular)', 'acf-font-awesome'),
+				'classic_light'          => __('Classic (Light)', 'acf-font-awesome'),
+				'classic_thin'           => __('Classic (Thin)', 'acf-font-awesome'),
+				'sharp_solid'            => __('Sharp (Solid)', 'acf-font-awesome'),
+				'sharp_regular'          => __('Sharp (Regular)', 'acf-font-awesome'),
+				'sharp_light'            => __('Sharp (Light)', 'acf-font-awesome'),
+				'sharp_thin'             => __('Sharp (Thin)', 'acf-font-awesome'),
+				'duotone_solid'          => __('Duotone (Solid)', 'acf-font-awesome'),
+				'duotone_regular'        => __('Duotone (Regular)', 'acf-font-awesome'),
+				'duotone_light'          => __('Duotone (Light)', 'acf-font-awesome'),
+				'duotone_thin'           => __('Duotone (Thin)', 'acf-font-awesome'),
+				'sharp-duotone_solid'    => __('Sharp Duotone (Solid)', 'acf-font-awesome'),
+				'sharp-duotone_regular'  => __('Sharp Duotone (Regular)', 'acf-font-awesome'),
+				'sharp-duotone_light'    => __('Sharp Duotone (Light)', 'acf-font-awesome'),
+				'sharp-duotone_thin'     => __('Sharp Duotone (Thin)', 'acf-font-awesome'),
+				'whiteboard_semibold'    => __('Whiteboard (Semibold)', 'acf-font-awesome'),
+				'etch_solid'             => __('Etch (Solid)', 'acf-font-awesome'),
+				'slab_regular'           => __('Slab (Regular)', 'acf-font-awesome'),
+				'slab-press_regular'     => __('Slab Press (Regular)', 'acf-font-awesome'),
+				'thumbprint_light'       => __('Thumbprint (Light)', 'acf-font-awesome'),
+				'jelly_regular'          => __('Jelly (Regular)', 'acf-font-awesome'),
+				'jelly-duo_regular'      => __('Jelly Duo (Regular)', 'acf-font-awesome'),
+				'jelly-fill_regular'     => __('Jelly Fill (Regular)', 'acf-font-awesome'),
+				'chisel_regular'         => __('Chisel (Regular)', 'acf-font-awesome'),
+				'notdog_solid'           => __('Notdog (Solid)', 'acf-font-awesome'),
+				'notdog-duo_solid'       => __('Notdog Duo (Solid)', 'acf-font-awesome'),
+				'utility_semisolid'      => __('Utility (Solid)', 'acf-font-awesome'),
+				'utility-duo_semisolid'  => __('Utility Duo (Solid)', 'acf-font-awesome'),
+				'utility-fill_semisolid' => __('Utility Fill (Solid)', 'acf-font-awesome'),
+				'fak'                    => __( 'Uploaded Icons', 'acf-font-awesome' ),
+				'brands'                 => __('Brands', 'acf-font-awesome'),
+				'custom'                 => __('Custom Icon Set', 'acf-font-awesome')
 			];
 
 			// Fix duotone family previously saved with no style
@@ -86,7 +108,7 @@ if ( ! class_exists( 'acf_field_font_awesome' ) ) :
 				}
 			}
 
-			$selected_field_sets	= ! empty( $field['icon_sets'] ) ? $field['icon_sets'] : [ 'solid', 'regular', 'brands' ];
+			$selected_field_sets	= ! empty( $field['icon_sets'] ) ? $field['icon_sets'] : [ 'classic_solid', 'classic_regular', 'brands' ];
 			$selected_field_sets	= apply_filters( 'ACFFA_v5_upgrade_compat_selected_field_sets', $selected_field_sets );
 
 			$icon_sets_args['value'] = $selected_field_sets;
@@ -194,7 +216,7 @@ if ( ! class_exists( 'acf_field_font_awesome' ) ) :
 		}
 
 		public function render_field( $field )
-		{	
+		{
 			if ( $field['allow_null'] ) {
 				$select_value = $field['value'];
 			} else {
@@ -219,7 +241,16 @@ if ( ! class_exists( 'acf_field_font_awesome' ) ) :
 				$icon_info = json_decode( $select_value );
 				if ( is_object( $icon_info ) ) {
 					$family = isset( $icon_info->family ) ? $icon_info->family : apply_filters( 'ACFFA_default_family_by_style', 'classic', $icon_info->style );
-					$field['choices'][ $select_value ] = '<i class="fa-' . $family . ' fa-' . $icon_info->style . ' fa-' . $icon_info->id . ' fa-fw"></i> ' . $icon_info->label;
+					$style = isset( $icon_info->style ) ? $icon_info->style : '';
+					$classes = [];
+					if ( 'classic' !== $family ) {
+						$classes[] = 'fa-' . str_replace( '_', '-', $family );
+					}
+					if ( $style ) {
+						$classes[] = 'fa-' . $style;
+					}
+					$classes[] = 'fa-' . $icon_info->id;
+					$field['choices'][ $select_value ] = '<i class="' . implode( ' ', $classes ) . ' fa-fw"></i> ' . $icon_info->label;
 				} else {
 					$v5_icon_preselected	= true;
 					$options				= get_option( 'acffa_settings' );
@@ -314,7 +345,7 @@ if ( ! class_exists( 'acf_field_font_awesome' ) ) :
 				wp_enqueue_style( 'acffa_font-awesome', $fa_url, [], $latest_version );
 			}
 		}
-	
+
 		public function format_value( $value, $post_id, $field )
 		{
 			if ( 'null' == $value ) {
@@ -329,8 +360,17 @@ if ( ! class_exists( 'acf_field_font_awesome' ) ) :
 
 			if ( is_object( $icon_json ) ) {
 				$family = isset( $icon_json->family ) ? $icon_json->family : apply_filters( 'ACFFA_default_family_by_style', 'classic', $icon_json->style );
-				$class = 'fa-' . esc_attr($family) . ' fa-' . esc_attr($icon_json->style) . ' fa-' . esc_attr($icon_json->id);
-				$prefix	= 'fa-' . esc_attr($family) . ' fa-' . esc_attr($icon_json->style);
+				$style = isset( $icon_json->style ) ? $icon_json->style : '';
+				$classes = [];
+				if ('classic' !== $family) {
+					$classes[] = 'fa-' . str_replace('_', '-', $family);
+				}
+				if ( $style ) {
+					$classes[] = 'fa-' . $style;
+				}
+				$classes[] = 'fa-' . $icon_json->id;
+				$class = implode( ' ', $classes );
+				$prefix = implode( ' ', array_slice( $classes, 0, -1 ) );
 
 				switch ( $field['save_format'] ) {
 					case 'element':
@@ -338,23 +378,23 @@ if ( ! class_exists( 'acf_field_font_awesome' ) ) :
 						break;
 
 					case 'unicode':
-						$value = '&#x' . $icon_json->unicode . ';';
+						$value = '&#x' . esc_attr($icon_json->unicode) . ';';
 						break;
 
 					case 'class':
-						$value = $class;
+						$value = esc_attr($class);
 						break;
 
 					case 'object':
 						$object_data = [
-							'element'	=> '<i class="' . $class . '" aria-hidden="true"></i>',
+							'element'	=> '<i class="' . esc_attr($class) . '" aria-hidden="true"></i>',
 							'class'		=> $class,
 							'id'		=> $icon_json->id,
 							'family'	=> $family,
-							'style'		=> $icon_json->style,
-							'prefix'	=> $prefix,
-							'hex'		=> '\\' . $icon_json->unicode,
-							'unicode'	=> '&#x' . $icon_json->unicode . ';'
+							'style' 	=> $icon_json->style,
+							'prefix' 	=> $prefix,
+							'hex' 		=> '\\' . $icon_json->unicode,
+							'unicode' 	=> '&#x' . $icon_json->unicode . ';'
 						];
 
 						if ( 'fak' == $icon_json->style || 'custom' == $icon_json->style ) {
