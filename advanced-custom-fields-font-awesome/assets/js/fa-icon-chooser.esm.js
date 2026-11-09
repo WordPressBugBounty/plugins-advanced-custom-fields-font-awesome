@@ -9,18 +9,36 @@ import 'https://cdn.jsdelivr.net/npm/@fortawesome/fa-icon-chooser@0.11.0/dist/fa
   let inputEl = null;
   let container = null;
 
+  // The chooser element is recreated on every open, losing its own caches.
+  // Keep responses (and in-flight requests) for the page so reopening is instant.
+  const cache = new Map();
+
+  function cached(key, load) {
+    if (!cache.has(key)) {
+      cache.set(key, load().catch(error => {
+        cache.delete(key);
+        throw error;
+      }));
+    }
+    return cache.get(key);
+  }
+
   function getUrlText(url) {
-    return fetch(url).then(response => {
+    return cached(url, () => fetch(url).then(response => {
       if (response.ok) {
         return response.text();
       } else {
         throw new Error('Bad query for url: ' + url);
       }
-    });
+    }));
   }
 
-  async function handleQuery(query, variables) {
+  function handleQuery(query, variables) {
     const cleanedQuery = query.replace(/\s+/g, ' ');
+    return cached(cleanedQuery + JSON.stringify(variables || {}), () => sendQuery(cleanedQuery, variables));
+  }
+
+  async function sendQuery(cleanedQuery, variables) {
 
     const formData = new FormData();
     formData.append('action', 'acffa_fa_query');
@@ -100,7 +118,7 @@ import 'https://cdn.jsdelivr.net/npm/@fortawesome/fa-icon-chooser@0.11.0/dist/fa
     return i;
   }
 
-  function openIconChooser() {
+  function openIconChooser(show = true) {
     // Remove existing chooser
     let existing = container.find('fa-icon-chooser');
     if (existing.length) existing.remove();
@@ -141,7 +159,9 @@ import 'https://cdn.jsdelivr.net/npm/@fortawesome/fa-icon-chooser@0.11.0/dist/fa
 
     container.find('.chooser-wrapper').append(el);
 
-    container.addClass('open');
+    if (show) {
+      container.addClass('open');
+    }
   }
 
   function insertIconChooserContainer() {
@@ -161,6 +181,18 @@ import 'https://cdn.jsdelivr.net/npm/@fortawesome/fa-icon-chooser@0.11.0/dist/fa
     container = $('#acffa-icon-chooser-container');
   }
   insertIconChooserContainer();
+
+  // Build a hidden chooser once the page has loaded: its startup queries fill the cache, so the first real open is fast too.
+  function prefetch() {
+    if (document.querySelector('.fa-icon-chooser-open') && !container.hasClass('open')) {
+      openIconChooser(false);
+    }
+  }
+  if (document.readyState === 'complete') {
+    prefetch();
+  } else {
+    window.addEventListener('load', prefetch, { once: true });
+  }
 
   // when clicking outside the card or on the close button, close the chooser
   container.on('click', function (e) {

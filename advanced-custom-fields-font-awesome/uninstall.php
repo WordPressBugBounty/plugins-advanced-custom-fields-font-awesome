@@ -15,6 +15,7 @@ delete_option( 'ACFFA_last_api_call_status' );
 delete_option( 'ACFFA_kits' );
 delete_transient( 'ACFFA_search_config' );
 delete_transient( 'ACFFA_access_token' );
+delete_option( 'ACFFA_kit_revision' );
 
 $ACFFA_custom_icon_sets_list = get_option( 'ACFFA_custom_icon_sets_list' );
 if ( $ACFFA_custom_icon_sets_list ) {

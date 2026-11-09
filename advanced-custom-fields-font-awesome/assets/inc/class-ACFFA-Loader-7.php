@@ -60,24 +60,62 @@ class ACFFA_Loader_7 {
 			wp_send_json_error(['message' => __('This query requests fields that are not permitted.', 'acf-font-awesome')]);
 		}
 
+		$operation_name	= array_search($query, $this->acffa_upstream_query_templates(), true);
+		$cache_key		= $this->acffa_query_cache_key($operation_name, $request);
+		$cached			= $cache_key ? get_transient($cache_key) : false;
+
+		if ($cached) {
+			wp_send_json_success(json_decode($cached));
+		}
+
 		$remote_get = wp_remote_post('https://api.fontawesome.com', [
 			'headers'	=> [
 				'Content-Type'	=> 'application/json',
 				'Authorization'	=> 'Bearer ' . apply_filters('ACFFA_fontawesome_access_token', false),
 			],
-			'timeout'	=> 30,
+			'timeout'	=> 15,
 			'body'		=> json_encode($request)
 		]);
 
-		if (! is_wp_error($remote_get)) {
-			$response_json = wp_remote_retrieve_body($remote_get);
+		if (! is_wp_error($remote_get) && 200 === (int) wp_remote_retrieve_response_code($remote_get)) {
+			$response_json	= wp_remote_retrieve_body($remote_get);
+			$response		= $response_json ? json_decode($response_json) : null;
 
-			if ($response_json) {
-				wp_send_json_success(json_decode($response_json));
+			if ($response) {
+				if (empty($response->errors)) {
+					if ('KitRevision' === $operation_name && isset($response->data->me->kit)) {
+						$kit = $response->data->me->kit;
+						update_option('ACFFA_kit_revision', $this->kit_token . '|' . $kit->kitRevision . '|' . $kit->showcaseCacheKey, false);
+					} elseif ($cache_key) {
+						set_transient($cache_key, $response_json, 'Search' === $operation_name ? WEEK_IN_SECONDS : DAY_IN_SECONDS);
+					}
+				}
+
+				wp_send_json_success($response);
 			}
 		}
 
 		wp_send_json_error();
+	}
+
+	/**
+	 * Transient key for upstream responses that are safe to share, or false.
+	 * Search results are fixed per Font Awesome version. Kit data is keyed on
+	 * the revision from the uncached KitRevision probe (which the chooser always
+	 * runs first), so a changed kit is never served stale data.
+	 */
+	private function acffa_query_cache_key($operation_name, $request) {
+		if ('Search' === $operation_name) {
+			return 'ACFFA_q_' . md5(wp_json_encode($request));
+		}
+
+		$revision = get_option('ACFFA_kit_revision');
+
+		if (in_array($operation_name, ['KitMetadata', 'ShowcaseIcons'], true) && $this->kit_token && is_string($revision) && 0 === strpos($revision, $this->kit_token . '|')) {
+			return 'ACFFA_q_' . md5(wp_json_encode($request) . $revision);
+		}
+
+		return false;
 	}
 
 	/**
