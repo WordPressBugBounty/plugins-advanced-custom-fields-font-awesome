@@ -13,6 +13,23 @@ import 'https://cdn.jsdelivr.net/npm/@fortawesome/fa-icon-chooser@0.11.0/dist/fa
   // Keep responses (and in-flight requests) for the page so reopening is instant.
   const cache = new Map();
 
+  // The chooser only includes SVG data (and thus the unicode) when the kit permits
+  // embedding, so remember unicodes from the API responses as a fallback.
+  const unicodes = new Map();
+
+  function rememberUnicodes(node) {
+    if (Array.isArray(node)) {
+      node.forEach(rememberUnicodes);
+    } else if (node && typeof node === 'object') {
+      // Icons carry unicodeHex; kit uploads in the kit metadata only carry a numeric unicode.
+      const hex = node.unicodeHex || (typeof node.unicode === 'number' ? node.unicode.toString(16) : '');
+      if (node.name && hex) {
+        unicodes.set(node.name, hex);
+      }
+      Object.values(node).forEach(rememberUnicodes);
+    }
+  }
+
   function cached(key, load) {
     if (!cache.has(key)) {
       cache.set(key, load().catch(error => {
@@ -67,6 +84,7 @@ import 'https://cdn.jsdelivr.net/npm/@fortawesome/fa-icon-chooser@0.11.0/dist/fa
       throw new Error('Font Awesome API returned errors');
     }
 
+    rememberUnicodes(payload);
     return payload;
   }
 
@@ -87,7 +105,7 @@ import 'https://cdn.jsdelivr.net/npm/@fortawesome/fa-icon-chooser@0.11.0/dist/fa
       family: result.family || '',
       style: result.style || '',
       id: result.iconName || '',
-      unicode: result.icon[3] || '',
+      unicode: result.icon?.[3] || unicodes.get(result.iconName) || '',
     };
 
     inputEl.val(`${JSON.stringify(iconData)}`).trigger('change');
